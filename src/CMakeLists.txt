@@ -1,7 +1,6 @@
-rock_find_qt5(Core Gui Widgets)
-include_directories(${QT_INCLUDE_DIR})
-include_directories(${QT_QTCORE_INCLUDE_DIR})
-include_directories(${QT_QTGUI_INCLUDE_DIR})
+rock_find_qt4(OPTIONAL)
+rock_find_qt5(OPTIONAL Widgets)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 pkg_check_modules(SDFORMAT QUIET sdformat)
@@ -34,13 +33,29 @@ FILE(GLOB SRCS
 )
 
 SET(QtApp_RCCS resources.qrc)
-QT5_ADD_RESOURCES(QtApp_RCC_SRCS ${QtApp_RCCS})
 
-rock_vizkit_widget(control_ui
-    SOURCES ${SRCS} ${QtApp_RCC_SRCS} 
-    HEADERS ${HDRS}
-    MOC ${MOC_HDRS}
-    UI jointform.ui
-    DEPS_PKGCONFIG base-types base-lib urdfdom yaml-cpp base-logging ${SDFORMAT_PKGCONFIG_NAME}
-    LIBS Qt5::Core Qt5::Gui Qt5::Widgets
-)
+if(ROCK_QT_VERSION_4)
+    QT4_ADD_RESOURCES(Qt4App_RCC_SRCS ${QtApp_RCCS})
+
+    rock_vizkit_widget(control_ui
+        SOURCES ${SRCS} ${Qt4App_RCC_SRCS}
+        HEADERS ${HDRS}
+        MOC ${MOC_HDRS}
+        UI jointform.ui
+        DEPS_PKGCONFIG base-types base-lib urdfdom yaml-cpp base-logging ${SDFORMAT_PKGCONFIG_NAME}
+        LIBS Qt4::QtGui
+    )
+endif(ROCK_QT_VERSION_4)
+
+if(ROCK_QT_VERSION_5)
+    QT5_ADD_RESOURCES(Qt5App_RCC_SRCS ${QtApp_RCCS})
+
+    rock_vizkit_widget(control_ui-qt5
+        SOURCES ${SRCS} ${Qt5App_RCC_SRCS}
+        HEADERS ${HDRS}
+        MOC5 ${MOC_HDRS}
+        UI5 jointform.ui
+        DEPS_PKGCONFIG base-types base-lib urdfdom yaml-cpp base-logging ${SDFORMAT_PKGCONFIG_NAME}
+        LIBS Qt5::Widgets
+    )
+endif(ROCK_QT_VERSION_5)
